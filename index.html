@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="description" content="สรุป Apache Struts2 Framework พร้อมคำสั่งและตัวอย่างโค้ด">
+<title>Struts2 Reference Guide</title>
+<link rel="stylesheet" href="style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+</head>
+<body>
+<header class="header">
+  <button class="menu-toggle" id="menuToggle">☰</button>
+  <a class="header-logo" href="#">
+    <div class="logo-icon">S2</div>
+    <h1>Struts<span>2</span></h1>
+  </a>
+  <div class="header-search">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="searchInput" placeholder="ค้นหาคำสั่ง, tags, interceptors...">
+    <div class="search-results" id="searchResults"></div>
+  </div>
+  <button class="mobile-search-btn" id="mobileSearchBtn">🔍</button>
+</header>
+
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<div class="layout">
+  <nav class="sidebar" id="sidebar">
+    <ul class="sidebar-nav" id="sidebarNav">
+      <li class="nav-group">
+        <div class="nav-group-title">Core Concepts</div>
+        <a href="#architecture" class="nav-item">Architecture</a>
+        <a href="#actions" class="nav-item">Actions & Config</a>
+        <a href="#valuestack" class="nav-item">ValueStack & OGNL</a>
+        <a href="#scopes" class="nav-item">Context Scopes</a>
+      </li>
+      <li class="nav-group">
+        <div class="nav-group-title">Tags & Views</div>
+        <a href="#tags" class="nav-item">UI Tags (s:form)</a>
+        <a href="#iterator" class="nav-item">Control Tags (s:iterator)</a>
+      </li>
+      <li class="nav-group">
+        <div class="nav-group-title">Advanced</div>
+        <a href="#interceptors" class="nav-item">Interceptors</a>
+        <a href="#validation" class="nav-item">Validation</a>
+        <a href="#file-handling" class="nav-item">File Upload/Download</a>
+      </li>
+    </ul>
+  </nav>
+
+  <main class="main-content" id="mainContent">
+    <section class="hero">
+      <div class="hero-badge">⚡ Apache Struts2</div>
+      <h1>Complete Reference Guide</h1>
+      <p>คู่มือสรุปคำสั่ง โครงสร้าง และตัวอย่างโค้ดของ Struts2 Framework สำหรับนักพัฒนา Java Web Application</p>
+    </section>
+
+    <!-- Section: Architecture -->
+    <section id="architecture" class="section">
+      <div class="section-header">
+        <div class="section-icon purple">🏗️</div>
+        <h2>Architecture & Lifecycle</h2>
+      </div>
+      <p>Struts2 ทำงานบนสถาปัตยกรรม MVC (Model-View-Controller) โดยใช้ FilterDispatcher เป็นตัวรับ Request แรก</p>
+      <div class="flow-diagram">
+        <div class="flow-step">Client Request</div>
+        <div class="flow-arrow">➔</div>
+        <div class="flow-step">FilterDispatcher</div>
+        <div class="flow-arrow">➔</div>
+        <div class="flow-step">Interceptors</div>
+        <div class="flow-arrow">➔</div>
+        <div class="flow-step">Action (Execute)</div>
+        <div class="flow-arrow">➔</div>
+        <div class="flow-step">Result (JSP/View)</div>
+      </div>
+    </section>
+
+    <!-- Section: Actions & Configuration -->
+    <section id="actions" class="section">
+      <div class="section-header">
+        <div class="section-icon cyan">🚀</div>
+        <h2>Actions & Configuration</h2>
+      </div>
+      <p>Action คือหัวใจหลักของ Struts2 (Controller) ที่จะถูกเรียกใช้เมื่อมี Request เข้ามา สามารถ Config ได้ 2 แบบคือ XML และ Annotation</p>
+      
+      <div class="card">
+        <h3>1. XML Configuration (<span class="tag-badge xml">struts.xml</span>)</h3>
+        <p>ตั้งค่าผ่านไฟล์ <code>struts.xml</code> ในโฟลเดอร์ <code>src/main/resources</code></p>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">xml</span>
+            <button class="code-copy">Copy</button>
+          </div>
+          <pre><code><span class="tag">&lt;struts&gt;</span>
+    <span class="tag">&lt;package</span> <span class="attr">name</span>=<span class="val">"default"</span> <span class="attr">namespace</span>=<span class="val">"/"</span> <span class="attr">extends</span>=<span class="val">"struts-default"</span><span class="tag">&gt;</span>
+        <span class="tag">&lt;action</span> <span class="attr">name</span>=<span class="val">"login"</span> <span class="attr">class</span>=<span class="val">"com.example.LoginAction"</span><span class="tag">&gt;</span>
+            <span class="tag">&lt;result</span> <span class="attr">name</span>=<span class="val">"success"</span><span class="tag">&gt;</span>/welcome.jsp<span class="tag">&lt;/result&gt;</span>
+            <span class="tag">&lt;result</span> <span class="attr">name</span>=<span class="val">"error"</span><span class="tag">&gt;</span>/login.jsp<span class="tag">&lt;/result&gt;</span>
+        <span class="tag">&lt;/action&gt;</span>
+    <span class="tag">&lt;/package&gt;</span>
+<span class="tag">&lt;/struts&gt;</span></code></pre>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>2. Annotation Configuration (<span class="tag-badge java">Java</span>)</h3>
+        <p>ใช้ Convention Plugin ทำให้ไม่ต้องเขียน XML (Zero Configuration)</p>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">java</span>
+            <button class="code-copy">Copy</button>
+          </div>
+          <pre><code><span class="kw">import</span> org.apache.struts2.convention.annotation.Action;
+<span class="kw">import</span> org.apache.struts2.convention.annotation.Result;
+<span class="kw">import</span> com.opensymphony.xwork2.ActionSupport;
+
+<span class="ann">@Action</span>(value = <span class="str">"/login"</span>, results = {
+    <span class="ann">@Result</span>(name = <span class="str">"success"</span>, location = <span class="str">"/welcome.jsp"</span>),
+    <span class="ann">@Result</span>(name = <span class="str">"error"</span>, location = <span class="str">"/login.jsp"</span>)
+})
+<span class="kw">public class</span> <span class="type">LoginAction</span> <span class="kw">extends</span> <span class="type">ActionSupport</span> {
+    <span class="kw">private</span> <span class="type">String</span> username;
+    
+    <span class="kw">public</span> <span class="type">String</span> <span class="fn">execute</span>() {
+        <span class="kw">if</span> (<span class="str">"admin"</span>.equals(username)) <span class="kw">return</span> SUCCESS;
+        <span class="kw">return</span> ERROR;
+    }
+    <span class="cm">// getters and setters</span>
+}</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section: ValueStack & OGNL -->
+    <section id="valuestack" class="section">
+      <div class="section-header">
+        <div class="section-icon pink">🧠</div>
+        <h2>ValueStack & OGNL</h2>
+      </div>
+      <p>ValueStack คือพื้นที่เก็บข้อมูลหลักขณะ Request ทำงาน ส่วน OGNL (Object-Graph Navigation Language) คือภาษาที่ใช้อ่าน/เขียนข้อมูลใน JSP</p>
+
+      <div class="card">
+        <h3>OGNL Syntax Basics</h3>
+        <table class="info-table">
+          <tr>
+            <th>Syntax</th>
+            <th>คำอธิบาย</th>
+            <th>ตัวอย่าง</th>
+          </tr>
+          <tr>
+            <td><code>property</code></td>
+            <td>เข้าถึง Property บน ValueStack โดยตรง (ไม่มี #)</td>
+            <td><code>&lt;s:property value="username" /&gt;</code></td>
+          </tr>
+          <tr>
+            <td><code>#scope.key</code></td>
+            <td>เข้าถึงข้อมูลใน Context Map (เช่น Session, Request)</td>
+            <td><code>&lt;s:property value="#session.user" /&gt;</code></td>
+          </tr>
+          <tr>
+            <td><code>%{exp}</code></td>
+            <td>บังคับให้ประมวลผล Expression ใน Attribute</td>
+            <td><code>&lt;s:textfield name="id" value="%{userId}" /&gt;</code></td>
+          </tr>
+          <tr>
+            <td><code>@class@method</code></td>
+            <td>เรียกใช้ Static Method หรือตัวแปร</td>
+            <td><code>&lt;s:property value="@java.lang.Math@PI" /&gt;</code></td>
+          </tr>
+        </table>
+      </div>
+    </section>
+
+    <!-- Section: Context Scopes -->
+    <section id="scopes" class="section">
+      <div class="section-header">
+        <div class="section-icon orange">📦</div>
+        <h2>Context Scopes</h2>
+      </div>
+      <p>การจัดการข้อมูลในระดับ Request, Session และ Application</p>
+
+      <div class="card">
+        <h3>Accessing Scopes via Aware Interfaces (<span class="tag-badge java">Java</span>)</h3>
+        <p>วิธีที่ดีที่สุดคือการ implement <code>*Aware</code> interfaces เพื่อให้ Struts2 inject map เข้ามาให้</p>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">java</span>
+            <button class="code-copy">Copy</button>
+          </div>
+          <pre><code><span class="kw">public class</span> <span class="type">UserAction</span> <span class="kw">extends</span> <span class="type">ActionSupport</span> <span class="kw">implements</span> <span class="type">SessionAware</span> {
+    <span class="kw">private</span> <span class="type">Map</span>&lt;<span class="type">String</span>, <span class="type">Object</span>&gt; session;
+
+    <span class="ann">@Override</span>
+    <span class="kw">public void</span> <span class="fn">setSession</span>(<span class="type">Map</span>&lt;<span class="type">String</span>, <span class="type">Object</span>&gt; session) {
+        <span class="kw">this</span>.session = session;
+    }
+
+    <span class="kw">public</span> <span class="type">String</span> <span class="fn">execute</span>() {
+        <span class="cm">// บันทึกข้อมูลลง Session</span>
+        session.put(<span class="str">"loggedInUser"</span>, <span class="str">"John Doe"</span>);
+        <span class="kw">return</span> SUCCESS;
+    }
+}</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section: Tags -->
+    <section id="tags" class="section">
+      <div class="section-header">
+        <div class="section-icon green">🎨</div>
+        <h2>UI Tags (s:form)</h2>
+      </div>
+      <p>ต้องประกาศ <code>&lt;%@ taglib prefix="s" uri="/struts-tags" %&gt;</code> ที่หัวไฟล์ JSP เสมอ</p>
+
+      <div class="card">
+        <h3>Form Elements (<span class="tag-badge jsp">JSP</span>)</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">jsp</span>
+            <button class="code-copy">Copy</button>
+          </div>
+          <pre><code><span class="tag">&lt;s:form</span> <span class="attr">action</span>=<span class="val">"saveUser"</span><span class="tag">&gt;</span>
+    <span class="cm">&lt;!-- Text Field ผูกกับตัวแปร username --&gt;</span>
+    <span class="tag">&lt;s:textfield</span> <span class="attr">name</span>=<span class="val">"username"</span> <span class="attr">label</span>=<span class="val">"Username"</span> <span class="tag">/&gt;</span>
+    
+    <span class="cm">&lt;!-- Password Field --&gt;</span>
+    <span class="tag">&lt;s:password</span> <span class="attr">name</span>=<span class="val">"password"</span> <span class="attr">label</span>=<span class="val">"Password"</span> <span class="tag">/&gt;</span>
+    
+    <span class="cm">&lt;!-- Dropdown (Select) --&gt;</span>
+    <span class="tag">&lt;s:select</span> <span class="attr">name</span>=<span class="val">"country"</span> <span class="attr">label</span>=<span class="val">"Country"</span> 
+              <span class="attr">list</span>=<span class="val">"{'Thailand', 'USA', 'Japan'}"</span> <span class="tag">/&gt;</span>
+              
+    <span class="cm">&lt;!-- Radio Buttons --&gt;</span>
+    <span class="tag">&lt;s:radio</span> <span class="attr">name</span>=<span class="val">"gender"</span> <span class="attr">label</span>=<span class="val">"Gender"</span> 
+             <span class="attr">list</span>=<span class="val">"#{'M':'Male', 'F':'Female'}"</span> <span class="tag">/&gt;</span>
+             
+    <span class="cm">&lt;!-- Submit Button --&gt;</span>
+    <span class="tag">&lt;s:submit</span> <span class="attr">value</span>=<span class="val">"Register"</span> <span class="tag">/&gt;</span>
+<span class="tag">&lt;/s:form&gt;</span></code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section: Iterator -->
+    <section id="iterator" class="section">
+      <div class="section-header">
+        <div class="section-icon blue">🔁</div>
+        <h2>Control Tags (s:iterator)</h2>
+      </div>
+
+      <div class="card">
+        <h3>Looping over a List (<span class="tag-badge jsp">JSP</span>)</h3>
+        <p>ใช้สำหรับวนลูป List, Set, Map หรือ Array</p>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">jsp</span>
+            <button class="code-copy">Copy</button>
+          </div>
+          <pre><code><span class="cm">&lt;!-- วนลูป Object ในตัวแปร 'users' --&gt;</span>
+<span class="tag">&lt;s:iterator</span> <span class="attr">value</span>=<span class="val">"users"</span> <span class="attr">var</span>=<span class="val">"user"</span> <span class="attr">status</span>=<span class="val">"stat"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="val">"row"</span><span class="tag">&gt;</span>
+        No. <span class="tag">&lt;s:property</span> <span class="attr">value</span>=<span class="val">"#stat.index + 1"</span> <span class="tag">/&gt;</span>
+        Name: <span class="tag">&lt;s:property</span> <span class="attr">value</span>=<span class="val">"#user.firstName"</span> <span class="tag">/&gt;</span>
+        <span class="cm">&lt;!-- ตรวจสอบว่าเป็นแถวคู่หรือคี่ --&gt;</span>
+        <span class="tag">&lt;s:if</span> <span class="attr">test</span>=<span class="val">"#stat.even"</span><span class="tag">&gt;</span>(Even Row)<span class="tag">&lt;/s:if&gt;</span>
+    <span class="tag">&lt;/div&gt;</span>
+<span class="tag">&lt;/s:iterator&gt;</span></code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section: Interceptors -->
+    <section id="interceptors" class="section">
+      <div class="section-header">
+        <div class="section-icon red">🛡️</div>
+        <h2>Interceptors</h2>
+      </div>
+      <p>Interceptor คือโมดูลที่ทำงานคั่นก่อน/หลัง Action (เทียบเท่า Filter) ใช้ทำระบบ Security, Logging, Validation ฯลฯ</p>
+
+      <div class="card">
+        <h3>Custom Interceptor (<span class="tag-badge java">Java</span>)</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">java</span>
+            <button class="code-copy">Copy</button>
+          </div>
+          <pre><code><span class="kw">public class</span> <span class="type">AuthInterceptor</span> <span class="kw">extends</span> <span class="type">AbstractInterceptor</span> {
+    <span class="ann">@Override</span>
+    <span class="kw">public</span> <span class="type">String</span> <span class="fn">intercept</span>(<span class="type">ActionInvocation</span> invocation) <span class="kw">throws</span> <span class="type">Exception</span> {
+        <span class="type">Map</span>&lt;<span class="type">String</span>, <span class="type">Object</span>&gt; session = invocation.getInvocationContext().getSession();
+        
+        <span class="cm">// เช็คว่า Login หรือยัง</span>
+        <span class="kw">if</span> (session.get(<span class="str">"user"</span>) == <span class="kw">null</span>) {
+            <span class="kw">return</span> <span class="str">"login"</span>; <span class="cm">// ส่งกลับหน้า Login</span>
+        }
+        
+        <span class="cm">// ทำงาน Action ต่อไป</span>
+        <span class="kw">return</span> invocation.invoke(); 
+    }
+}</code></pre>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Configuring Interceptor Stack (<span class="tag-badge xml">struts.xml</span>)</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">xml</span>
+            <button class="code-copy">Copy</button>
+          </div>
+          <pre><code><span class="tag">&lt;interceptors&gt;</span>
+    <span class="tag">&lt;interceptor</span> <span class="attr">name</span>=<span class="val">"auth"</span> <span class="attr">class</span>=<span class="val">"com.example.AuthInterceptor"</span><span class="tag">/&gt;</span>
+    <span class="tag">&lt;interceptor-stack</span> <span class="attr">name</span>=<span class="val">"secureStack"</span><span class="tag">&gt;</span>
+        <span class="tag">&lt;interceptor-ref</span> <span class="attr">name</span>=<span class="val">"defaultStack"</span><span class="tag">/&gt;</span>
+        <span class="tag">&lt;interceptor-ref</span> <span class="attr">name</span>=<span class="val">"auth"</span><span class="tag">/&gt;</span>
+    <span class="tag">&lt;/interceptor-stack&gt;</span>
+<span class="tag">&lt;/interceptors&gt;</span>
+
+<span class="tag">&lt;action</span> <span class="attr">name</span>=<span class="val">"dashboard"</span> <span class="attr">class</span>=<span class="val">"com.example.DashboardAction"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;interceptor-ref</span> <span class="attr">name</span>=<span class="val">"secureStack"</span><span class="tag">/&gt;</span>
+    <span class="tag">&lt;result</span> <span class="attr">name</span>=<span class="val">"success"</span><span class="tag">&gt;</span>/dashboard.jsp<span class="tag">&lt;/result&gt;</span>
+<span class="tag">&lt;/action&gt;</span></code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section: Validation -->
+    <section id="validation" class="section">
+      <div class="section-header">
+        <div class="section-icon pink">✅</div>
+        <h2>Validation Framework</h2>
+      </div>
+      
+      <div class="card">
+        <h3>XML Validation (<span class="tag-badge xml">ActionName-validation.xml</span>)</h3>
+        <p>สร้างไฟล์ชื่อเดียวกับ Action ตามด้วย <code>-validation.xml</code> ในโฟลเดอร์เดียวกัน</p>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">xml</span>
+            <button class="code-copy">Copy</button>
+          </div>
+          <pre><code><span class="tag">&lt;!DOCTYPE</span> validators PUBLIC <span class="val">"-//Apache Struts//XWork Validator 1.0.2//EN"</span> <span class="val">"http://struts.apache.org/dtds/xwork-validator-1.0.2.dtd"</span><span class="tag">&gt;</span>
+<span class="tag">&lt;validators&gt;</span>
+    <span class="tag">&lt;field</span> <span class="attr">name</span>=<span class="val">"username"</span><span class="tag">&gt;</span>
+        <span class="tag">&lt;field-validator</span> <span class="attr">type</span>=<span class="val">"requiredstring"</span><span class="tag">&gt;</span>
+            <span class="tag">&lt;message&gt;</span>Username is required.<span class="tag">&lt;/message&gt;</span>
+        <span class="tag">&lt;/field-validator&gt;</span>
+    <span class="tag">&lt;/field&gt;</span>
+    <span class="tag">&lt;field</span> <span class="attr">name</span>=<span class="val">"age"</span><span class="tag">&gt;</span>
+        <span class="tag">&lt;field-validator</span> <span class="attr">type</span>=<span class="val">"int"</span><span class="tag">&gt;</span>
+            <span class="tag">&lt;param</span> <span class="attr">name</span>=<span class="val">"min"</span><span class="tag">&gt;</span>18<span class="tag">&lt;/param&gt;</span>
+            <span class="tag">&lt;param</span> <span class="attr">name</span>=<span class="val">"max"</span><span class="tag">&gt;</span>100<span class="tag">&lt;/param&gt;</span>
+            <span class="tag">&lt;message&gt;</span>Age must be between 18 and 100.<span class="tag">&lt;/message&gt;</span>
+        <span class="tag">&lt;/field-validator&gt;</span>
+    <span class="tag">&lt;/field&gt;</span>
+<span class="tag">&lt;/validators&gt;</span></code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section: File Upload/Download -->
+    <section id="file-handling" class="section">
+      <div class="section-header">
+        <div class="section-icon cyan">📂</div>
+        <h2>File Upload / Download</h2>
+      </div>
+
+      <div class="card">
+        <h3>File Upload Action (<span class="tag-badge java">Java</span>)</h3>
+        <p>Form ใน JSP ต้องใส่ <code>enctype="multipart/form-data"</code></p>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">java</span>
+            <button class="code-copy">Copy</button>
+          </div>
+          <pre><code><span class="kw">public class</span> <span class="type">UploadAction</span> <span class="kw">extends</span> <span class="type">ActionSupport</span> {
+    <span class="kw">private</span> <span class="type">File</span> myFile;                 <span class="cm">// ไฟล์</span>
+    <span class="kw">private</span> <span class="type">String</span> myFileContentType;    <span class="cm">// ชนิดไฟล์</span>
+    <span class="kw">private</span> <span class="type">String</span> myFileFileName;       <span class="cm">// ชื่อไฟล์</span>
+    
+    <span class="cm">// getters & setters สำหรับ 3 ตัวแปรด้านบน</span>
+    
+    <span class="kw">public</span> <span class="type">String</span> <span class="fn">execute</span>() <span class="kw">throws</span> <span class="type">Exception</span> {
+        <span class="type">File</span> destFile = <span class="kw">new</span> <span class="type">File</span>(<span class="str">"C:/uploads/"</span>, myFileFileName);
+        FileUtils.copyFile(myFile, destFile); <span class="cm">// copy จาก temp</span>
+        <span class="kw">return</span> SUCCESS;
+    }
+}</code></pre>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>File Download Config (<span class="tag-badge xml">struts.xml</span>)</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">xml</span>
+            <button class="code-copy">Copy</button>
+          </div>
+          <pre><code><span class="tag">&lt;action</span> <span class="attr">name</span>=<span class="val">"download"</span> <span class="attr">class</span>=<span class="val">"com.example.DownloadAction"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;result</span> <span class="attr">name</span>=<span class="val">"success"</span> <span class="attr">type</span>=<span class="val">"stream"</span><span class="tag">&gt;</span>
+        <span class="tag">&lt;param</span> <span class="attr">name</span>=<span class="val">"contentType"</span><span class="tag">&gt;</span>application/octet-stream<span class="tag">&lt;/param&gt;</span>
+        <span class="tag">&lt;param</span> <span class="attr">name</span>=<span class="val">"inputName"</span><span class="tag">&gt;</span>inputStream<span class="tag">&lt;/param&gt;</span> <span class="cm">&lt;!-- property ใน Action --&gt;</span>
+        <span class="tag">&lt;param</span> <span class="attr">name</span>=<span class="val">"contentDisposition"</span><span class="tag">&gt;</span>attachment;filename="report.pdf"<span class="tag">&lt;/param&gt;</span>
+        <span class="tag">&lt;param</span> <span class="attr">name</span>=<span class="val">"bufferSize"</span><span class="tag">&gt;</span>1024<span class="tag">&lt;/param&gt;</span>
+    <span class="tag">&lt;/result&gt;</span>
+<span class="tag">&lt;/action&gt;</span></code></pre>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<button class="back-to-top" id="backToTop">↑</button>
+
+<footer class="footer">
+  Apache Struts2 Reference Guide — สร้างด้วย ❤️ สำหรับนักพัฒนา
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
