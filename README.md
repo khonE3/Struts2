@@ -1,5 +1,6 @@
-@ -1,270 +1,2 @@
 # คู่มือและสรุปคำสั่ง Struts2 Framework
+
+https://khone3.github.io/Struts2/
 
 Struts2 เป็น Framework สำหรับพัฒนาเว็บแอปพลิเคชันด้วยภาษา Java โดยใช้สถาปัตยกรรม MVC (Model-View-Controller) ซึ่งมีชุด Tag Library (Struts2 Tags) เพื่อช่วยในการแสดงผลข้อมูลและสร้างฟอร์มบนหน้า JSP ได้อย่างง่ายดาย
 
